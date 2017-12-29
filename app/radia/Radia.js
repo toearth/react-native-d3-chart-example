@@ -12,6 +12,8 @@ import {
 } from 'react-native';
 import Svg, {Path, G, Text, Polyline, Polygon, Line, Circle} from 'react-native-svg'
 import Web from './Web'
+import Areas from './Areas'
+
 const padding = 40
 const xPadding = 40
 
@@ -29,35 +31,32 @@ const onePiece = arc / total
 
 var data = {
     fieldNames: ['语文','数学','外语','物理','化学'],
-    values: [10,20,30,40,50]
+    values: [
+        [10,20,30,40,50],
+        [70,80,90,100,20],
+        [30,80,10,80,20],
+    ]
 }
 
 var result = {
     webs:[],
     webPoints: [],
+    areas: []
 }
 
 for (var k = 1; k < level +1; k++ ) {
-    let webs = '', area = ''
-    let webPoints = [], circles = []
+    let webs = ''
+    let webPoints = []
     let r = radius/level * k
     let textPoint = []
     let textRadius = radius + 20
 
     for (var i=0; i<total; i++) {
-        let radiaRadius = radius * (data.values[i] - rangeMin)/(rangeMax - rangeMin)
         let x = getX(r, i)
         let y = getY(r, i)
         webs += `${x},${y} `
         webPoints.push({
             x,y
-        })
-        let radiaX = getX(radiaRadius, i)
-        let radiaY = getY(radiaRadius, i)
-        area += `${radiaX},${radiaY} `
-        circles.push({
-            x: radiaX,
-            y: radiaY
         })
 
         let textX = getX(textRadius, i)
@@ -70,16 +69,33 @@ for (var k = 1; k < level +1; k++ ) {
     }
     result.webPoints.push(webPoints)
     result.webs.push(webs)
-    if (!result.circles) {
-        result.circles = circles
-    }
-    if (!result.area) {
-        result.area = area
-    }
+
     if (!result.textPoints) {
         result.textPoints = textPoint
     }
 }
+
+var circlesArray = []
+var areaArray = []
+
+
+data.values.forEach((items, index) => {
+        let circles = []
+        let area = ''
+        items.forEach((item, insideIndex) => {
+            let radiaRadius = radius * (data.values[index][insideIndex] - rangeMin)/(rangeMax - rangeMin)
+            let x = getX(radiaRadius, insideIndex)
+            let y = getY(radiaRadius, insideIndex)
+            area += `${x},${y} `
+            circles.push({
+                x,
+                y
+            })
+        })
+        result.areas.push({area,circles})
+    }
+)
+
 
 console.log(result)
 
@@ -123,26 +139,9 @@ export default class Radia extends Component {
                                 textPoints={result.textPoints}
                                 fieldNames={data.fieldNames}
                             />
-                            <Polygon
-                                points={result.area}
-                                fill={'#2ec7c9'}
-                                fillOpacity={"0.5"}
-                                stroke={'#2ec7c9'}
+                            <Areas
+                                areas={result.areas}
                             />
-                            {result.circles.map(
-                                (item, index) => (
-                                    <Circle
-                                        key={index}
-                                        cx={item.x}
-                                        cy={item.y}
-                                        r={3}
-                                        stroke={'#2ec7c9'}
-                                        fill={'white'}
-                                        // strokeWidth={3}
-                                    />
-                                )
-                            )
-                            }
                         </G>
                     </Svg>
                 </View>
