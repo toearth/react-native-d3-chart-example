@@ -68,7 +68,7 @@ const RootNavigator = StackNavigator({
     Radia: {
         screen: Radia,
         navigationOptions: {
-            headerTitle: 'PieChartLabels',
+            headerTitle: 'Radia',
             headerStyle: {
                 backgroundColor: '#fff',
             },
